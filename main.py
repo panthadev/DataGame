@@ -37,12 +37,6 @@ while running:
 
 
 
-
-
-
-
-
-
     # flip() the display to put your work on screen
     pygame.display.flip()
 
