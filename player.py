@@ -21,6 +21,7 @@ class Player(pygame.sprite.Sprite):
         self.dodge = {"is_dodging": False, "direction": None, 
                       "start_pos": None, "end_pos": None,
                       "start_time": None, "end_time": None}
+        self.block = {"is_blocking": False}
        
 
         # player assets
@@ -37,13 +38,20 @@ class Player(pygame.sprite.Sprite):
                                 "assets/player/player_dodge/player_dodge" + str(3) + ".png",
                                 "assets/player/player_dodge/player_dodge" + str(4) + ".png",
                                 "assets/player/player_dodge/player_dodge" + str(5) + ".png"]
+        
+        self.block_animation = ["assets\player\player_block\player_block"  + str(0)  + ".png",
+                                "assets\player\player_block\player_block"  + str(1)  + ".png",
+                                "assets\player\player_block\player_block"  + str(2)  + ".png",
+                                "assets\player\player_block\player_block"  + str(3)  + ".png"]
+        
+        
         self.frame = 0
         self.frame_counter = 0
         self.frame_buffer = 9 # how many frames it takes to get to next part of animation
 
         
 
-    def movement(self):     
+    def controls(self):     
         
         keys = pygame.key.get_pressed()
 
@@ -79,14 +87,32 @@ class Player(pygame.sprite.Sprite):
                 self.rect =  self.rect.move(self.stats["spd"] * 10, 0)
                 self.frame = self.frame + 1
 
+
+        elif keys[pygame.K_s]: # block
+           
+            print("blocking is " + str(self.block["is_blocking"]))
+
+            if(self.frame >= 3):
+                self.frame = 3 # keeps blocking animation at final frame while pressing down
+                self.block["is_blocking"] = True # only blocking when animation is fully completed
+
+            if(self.frame_counter % self.frame_buffer == 0): # every frame_buffer number of frames do :
+                self.image = pygame.image.load(self.block_animation[self.frame])
+                self.frame = self.frame + 1 # moves to next frame of animation
+
         
-        else: # resets frames and self.image
+        else: # resets frames, self.image, and action statuses
 
             self.image = pygame.image.load("assets\player\player_idle.png")
             self.frame = 0
             self.frame_counter = 0
 
-    
+            self.dodge["is_dodging"] = False
+            self.dodge["direction"] = None
+
+            self.block["is_blocking"] = False
+
+
 
     def collisions(self):
 
@@ -109,8 +135,9 @@ class Player(pygame.sprite.Sprite):
 
         self.frame_counter = self.frame_counter + 1 # counts number of frames that have occurred in total
 
-        self.movement()
+        self.controls()
         self.collisions()
+
        
        
         self.screen.blit(self.image, self.rect)
