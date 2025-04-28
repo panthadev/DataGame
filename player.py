@@ -60,7 +60,7 @@ class Player(pygame.sprite.Sprite):
         self.frame_counter = 0
         self.frame_buffer = 7 # how many frames it takes to get to next part of animation
 
-        self.busy = False
+        self.busy = {"busy": False, "action": None}
 
         
 
@@ -70,10 +70,9 @@ class Player(pygame.sprite.Sprite):
 
         
         if keys[pygame.K_d]: # walk right
-
             self.direction = 1 # facing right
 
-            if self.frame == 5: 
+            if self.frame >= 5: 
                 self.frame = 0 # resets to first frame of animation
             self.rect =  self.rect.move( self.direction * self.stats["spd"], 0) # moves player speed * direction
             if self.frame_counter % self.frame_buffer == 0: # every frame_buffer number of frames do :
@@ -81,10 +80,9 @@ class Player(pygame.sprite.Sprite):
             self.image = pygame.image.load(self.walk_right[self.frame])
         
         elif keys[pygame.K_a]: # walk left
-
             self.direction = -1 # facing left
             
-            if self.frame == 5: 
+            if self.frame >= 5: 
                 self.frame = 0 # resets to first frame of animation
             self.rect =  self.rect.move(self.direction * self.stats["spd"], 0) # moves player speed * direction
             if self.frame_counter % self.frame_buffer == 0: # every frame_buffer number of frames do :
@@ -96,13 +94,13 @@ class Player(pygame.sprite.Sprite):
            
            self.dodge["is_dodging"] = True
            self.dodge["direction"] = 1
-
+           
         elif self.dodge["is_dodging"]:
             
             if self.frame > 5:
                 self.dodge["is_dodging"] = False # ends animation and invincibility eye frames
                 self.dodge["direction"] = None # resets direction
-
+                
             if self.frame_counter % self.frame_buffer == 0: # enough fps frames elapsed -> next frame of animation
                 if self.direction == 1:
                     self.image = pygame.image.load(self.dodge_animation[self.frame])
@@ -142,9 +140,6 @@ class Player(pygame.sprite.Sprite):
                 else:
                     self.image = pygame.transform.flip(pygame.image.load(self.atk_animation[self.frame]), True, False) # flips atk_animation horizontally
                 self.frame += 1  # moves to next frame of animation
-
-
-
 
         
         else: # resets frames, self.image, and action statuses

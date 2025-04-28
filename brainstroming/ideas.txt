@@ -1,1 +1,5 @@
-ranged attack should have limited uses, then have to attack to get back?
+Predicting the players moves: if the boss predicts that the player will dash next, 
+preemptively lob a potion that leaves a poison puddle where the player will end up
+
+always do this before starting to work on project:
+venv\Scripts\activate
