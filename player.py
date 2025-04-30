@@ -95,6 +95,8 @@ class Player(pygame.sprite.Sprite):
         self.dodge["start_pos"] = self.rect.centerx
         print("start pos is: " + str(self.dodge["start_pos"]))
         
+        self.dodge["start_time"] = float(pygame.time.get_ticks() / 1000)
+        
         self.busy["busy"] = True
         
     
@@ -107,11 +109,21 @@ class Player(pygame.sprite.Sprite):
             self.dodge["end_pos"] = self.rect.centerx
             print("end pos is: " + str(self.dodge["end_pos"]))
             print("distance traveled: " + str(abs(self.dodge["end_pos"] - self.dodge["start_pos"])))
+            
+            self.dodge["end_time"] = float(pygame.time.get_ticks() / 1000)
+            
+            
             self.dodge["start_pos"] = None
             self.dodge["end_pos"] = None
 
             self.busy["busy"] = False # resets busy status so that player can use other moves
             #print("no longer busy")
+
+            if self.direction == 1:
+                self.image = pygame.image.load("assets/player/player_idle.png")
+            else:
+                self.image = pygame.transform.flip(pygame.image.load("assets/player/player_idle.png"), True, False)
+
         
         if self.frame_counter % self.frame_buffer == 0: # enough fps frames elapsed -> next frame of animation
             if self.direction == 1:
@@ -151,7 +163,7 @@ class Player(pygame.sprite.Sprite):
                 keys[self.busy["key"]] = keys_helper[self.busy["key"]] # original keys object's index at self.busy["key"] can now either be T or F instead of just False
             #print("busy")
             #print(sum(keys))
-            
+        
         if keys[pygame.K_d]:
             self.direction = 1
             self.walk_ctrl()
@@ -163,10 +175,20 @@ class Player(pygame.sprite.Sprite):
             #print("self.busy['busy'] is " + str(self.busy["busy"]))
 
         elif keys[pygame.K_SPACE]:
-            self.busy["key"] = None # dodge gets interrupted when repeatedly pressing space, this fixes that
-            self.dodge_ctrl_helper()
-            
+            if self.dodge["end_time"] != None:
+                time = float(pygame.time.get_ticks() / 1000)
+                print(time - self.dodge["end_time"])
+                if abs(time - (self.dodge["end_time"])) > 0.5:
+                    print((sum(keys)))
+                    self.busy["key"] = None # dodge gets interrupted when repeatedly pressing space, this fixes that
+                    self.dodge_ctrl_helper()
+            else:
+                self.busy["key"] = None # dodge gets interrupted when repeatedly pressing space, this fixes that
+                self.dodge_ctrl_helper()
+
+                 
         elif self.dodge["is_dodging"]:
+            
             self.dodge_ctrl()
         
         elif keys[pygame.K_s]:
