@@ -23,7 +23,7 @@ while running:
             running = False
 
     # fill the screen with a color to wipe away anything from last frame
-    screen.fill("black")
+    screen.fill("white")
 
 
     pygame.draw.rect(screen, "white", (100, 100, 20, 20))
@@ -32,7 +32,7 @@ while running:
 
     player_sprite.update()
 
-    boss_sprite.update()
+    #boss_sprite.update()
 
 
 
