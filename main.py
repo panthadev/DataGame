@@ -6,13 +6,13 @@ import boss
 
 # pygame setup
 pygame.init()
-screen = pygame.display.set_mode((1000, 400))
+screen = pygame.display.set_mode((1250, 500))
 clock = pygame.time.Clock()
 running = True
 
 
-boss_sprite = boss.Boss(screen, "assets\enemy.png", 500, 100)
-player_sprite = player.Player(screen,"assets\player\player_idle.png", boss_sprite)
+boss_sprite = boss.Boss(screen, "assets/boss/boss_idle.png", 500, 100)
+player_sprite = player.Player(screen,"assets/player/idle.png", boss_sprite)
 
 
 while running:
@@ -30,9 +30,11 @@ while running:
 
     # RENDER YOUR GAME HERE
 
+    boss_sprite.update()
+
     player_sprite.update()
 
-    #boss_sprite.update()
+    
 
 
 

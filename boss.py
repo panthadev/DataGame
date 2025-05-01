@@ -13,6 +13,15 @@ class Boss(pygame.sprite.Sprite):
         self.rect = self.mask.get_rect(center=(x,y))
 
 
+    def move(self):
+
+        pass
+
+    def attack(self):
+        pass
+
+
+
 
     def check_collide(self):
 
