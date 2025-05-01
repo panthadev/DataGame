@@ -16,7 +16,7 @@ class Player(pygame.sprite.Sprite):
         self.boss = boss
 
         # for data collection
-        self.stats = {"heatlh": 1, "atk": 1, "spatk": 1, "spd": 2, "dodge_range": 20}
+        self.stats = {"heatlh": 1, "atk": 1, "spatk": 1, "spd": 2, "range": 20, "cooldown": 0.25}
         self.colliding = {"state": False, "object": None}  
         self.dodge = {"is_dodging": False, "direction": None, 
                       "start_pos": None, "end_pos": None,
@@ -72,6 +72,35 @@ class Player(pygame.sprite.Sprite):
             else:
                 #print(counter)
                 return(counter)
+
+    def hold_or_press(self, hold = False, press = False, keys = None,action = None, helper_function = None):
+        # self.busy and keys need to be adjusted depending
+        # on if the move requires the player to hold the key down
+        # or just press
+        # use this to clean up code later
+        if hold and press:
+            raise ValueError("Only one argument can be True")
+        elif press:
+            if action["end_time"] != None: # if its not the first time since running this action takes place:
+                time = float(pygame.time.get_ticks() / 1000)
+                print("time - endtime: " + str(time - action["end_time"]))
+                print("endtime: " + str(action["end_time"]))
+                if abs(time - (action["end_time"])) > self.stats["cooldown"]: # if time since last use > cooldown:
+                    self.busy["key"] = None # interacts with first if statement in control(), makes it so that once key is pressed, action occurs without interruption,  self.busy["key"] != None would indicate that the action requires key to be held
+                    helper_function()
+            else: # if its the first time the action takes place:
+                print("first time action occurring")
+                self.busy["key"] = None # interacts with first if statement in control(), makes it so that once key is pressed, action occurs without interruption,  self.busy["key"] != None would indicate that the action requires key to be held
+                helper_function()
+
+        elif hold:
+            pass
+        
+        pass
+
+
+    
+    
 
 
     def walk_ctrl(self):
@@ -130,7 +159,7 @@ class Player(pygame.sprite.Sprite):
                 self.image = pygame.image.load(self.dodge_animation[self.frame])
             else:
                 self.image = pygame.transform.flip(pygame.image.load(self.dodge_animation[self.frame]), True, False) # flips dodging to the right animation horizontally
-            self.rect =  self.rect.move(self.direction * self.stats["spd"] * self.stats["dodge_range"], 0) # moves player speed * direction * dodge_range
+            self.rect =  self.rect.move(self.direction * self.stats["spd"] * self.stats["range"], 0) # moves player speed * direction * dodge_range
             self.frame += 1
 
     def block_ctrl(self):
@@ -159,10 +188,9 @@ class Player(pygame.sprite.Sprite):
         if self.busy["busy"] == True:
             keys = [0] * len(pygame.key.get_pressed()) # makes every index of possible keys pressed to false
             keys_helper = pygame.key.get_pressed() # second keys object
-            if self.busy["key"]!= None: # if an action key is pressed
+            if self.busy["key"]!= None: # for actions where the key needs to be held
                 keys[self.busy["key"]] = keys_helper[self.busy["key"]] # original keys object's index at self.busy["key"] can now either be T or F instead of just False
-            #print("busy")
-            #print(sum(keys))
+            
         
         if keys[pygame.K_d]:
             self.direction = 1
@@ -173,27 +201,16 @@ class Player(pygame.sprite.Sprite):
             self.direction = -1
             self.walk_ctrl()
             #print("self.busy['busy'] is " + str(self.busy["busy"]))
-
-        elif keys[pygame.K_SPACE]:
-            if self.dodge["end_time"] != None:
-                time = float(pygame.time.get_ticks() / 1000)
-                print(time - self.dodge["end_time"])
-                if abs(time - (self.dodge["end_time"])) > 0.5:
-                    print((sum(keys)))
-                    self.busy["key"] = None # dodge gets interrupted when repeatedly pressing space, this fixes that
-                    self.dodge_ctrl_helper()
-            else:
-                self.busy["key"] = None # dodge gets interrupted when repeatedly pressing space, this fixes that
-                self.dodge_ctrl_helper()
-
-                 
-        elif self.dodge["is_dodging"]:
-            
-            self.dodge_ctrl()
-        
         elif keys[pygame.K_s]:
             self.busy["key"] = self.get_key_index(keys) # the s key can be pressed while busy
             self.block_ctrl()
+
+        elif keys[pygame.K_SPACE]:
+            self.hold_or_press(False, True, keys, self.dodge, self.dodge_ctrl_helper)
+        elif self.dodge["is_dodging"]:
+            self.dodge_ctrl()
+        
+        
         
         else: # resets frames, self.image, and action statuses
             if self.direction == 1:
@@ -270,7 +287,7 @@ class Player(pygame.sprite.Sprite):
                     self.image = pygame.image.load(self.dodge_animation[self.frame])
                 else:
                     self.image = pygame.transform.flip(pygame.image.load(self.dodge_animation[self.frame]), True, False) # flips dodging to the right animation horizontally
-                self.rect =  self.rect.move(self.direction * self.stats["spd"] * self.stats["dodge_range"], 0) # moves player speed * direction * dodge_range
+                self.rect =  self.rect.move(self.direction * self.stats["spd"] * self.stats["range"], 0) # moves player speed * direction * dodge_range
                 self.frame += 1
 
 
