@@ -26,7 +26,7 @@ while running:
     screen.fill("white")
 
 
-    pygame.draw.rect(screen, "white", (100, 100, 20, 20))
+
 
     # RENDER YOUR GAME HERE
 
